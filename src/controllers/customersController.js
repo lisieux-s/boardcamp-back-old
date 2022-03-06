@@ -1,6 +1,20 @@
 import db from '../db.js'
 
-export async function getCustomer() {}
+export async function getCustomer(req, res) {
+    const id = req.params.id;
+    try {
+        const result = await db.query(`
+            SELECT * FROM customers WHERE id=$1
+        `, [id]);
+        if (result.rowCount === 0) {
+            return res.sendStatus(404);
+        }
+        res.send(result.rows[0])
+
+    } catch (err) {
+        res.status(500).send(err);
+    }
+}
 
 export async function updateCustomer() {}
 
