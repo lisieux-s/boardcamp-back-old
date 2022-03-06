@@ -2,7 +2,6 @@ import db from '../db.js';
 
 export async function createGame(req, res) {
     const game = req.body;
-    console.log(game)
 
     try {
         const result = await db.query(`
@@ -22,7 +21,6 @@ export async function createGame(req, res) {
 
     } catch (err) {
         res.status(500).send(err);
-        console.log(err)
     }  
 
 }
@@ -32,7 +30,6 @@ export async function getGames(req, res) {
         const result = await db.query(`
         SELECT * FROM games`)
 
-        console.log(result.rows)
         res.send(result.rows)
 
     } catch (err) {

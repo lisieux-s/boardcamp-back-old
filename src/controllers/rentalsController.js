@@ -3,9 +3,13 @@ import db from '../db.js';
 
 export async function createRental(req, res) {
   const rental = req.body;
-  console.log(rental);
 
   try {
+    const gameData = await db.query(`
+    SELECT * FROM games WHERE id=$1
+    `, [rental.gameId])
+    
+    const originalPrice = gameData.rows[0].pricePerDay*rental.daysRented
     await db.query(
       `
         INSERT INTO
@@ -15,7 +19,7 @@ export async function createRental(req, res) {
                 "rentDate", 
                 "daysRented", 
                 "returnDate", 
-                "originalPrice", 
+                "originalPrice",
                 "delayFee"
                 )
             VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -26,7 +30,7 @@ export async function createRental(req, res) {
           dayjs().format('DD/MM/YYYY'), 
           rental.daysRented,
           rental.returnDate,
-          0,
+          originalPrice,
           rental.delayFee
       ]
     );
@@ -43,7 +47,6 @@ export async function getRentals(req, res) {
     const result = await db.query(`
         SELECT * FROM rentals`);
 
-    console.log(result.rows);
     res.send(result.rows);
   } catch (err) {
     res.status(500).send(err);
