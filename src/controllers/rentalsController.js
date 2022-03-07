@@ -76,11 +76,10 @@ export async function updateRental(req, res) {
     
   returnDate = dayjs().format('DD/MM/YYYY')
   diff = returnDate.diff(result.rentDate, 'day');
+  const delayFee = 0;
 
   if(diff > daysRented) {
-    const delayFee = (rental.pricePerDay)*diff
-  } else {
-    const delayFee = 0;
+    delayFee = (rental.pricePerDay)*diff
   }
 
   await db.query(`
@@ -88,6 +87,7 @@ export async function updateRental(req, res) {
       SET returnDate=$1,
           delayFee=$2
   `, [returnDate, delayFee])
+  res.sendStatus(200)
     
   } catch (err) {
     console.log(err)
