@@ -57,14 +57,13 @@ export async function getRentals(req, res) {
 }
 
 export async function updateRental(req, res) {
-  const id = req.query.id;
-  console.log(id)
+  const id = req.params.id;
 
   try {
     const result = await db.query(`
   SELECT
-    rentals.*
-    games.pricePerDay AS "pricePerday"
+    rentals.*,
+    games."pricePerDay" AS "pricePerDay"
   FROM rentals 
     JOIN games ON games.id=rentals."gameId"
   WHERE rentals.id=$1
@@ -75,18 +74,18 @@ export async function updateRental(req, res) {
   const rental = result.rows[0];
   if (rental.returnDate !== null) return res.status(400).send('Aluguel já finalizado')
     
-  returnDate = dayjs().format('DD/MM/YYYY')
-  diff = returnDate.diff(result.rentDate, 'day');
+  const returnDate = dayjs()
+  const diff = returnDate.diff(result.rentDate, 'day');
   const delayFee = 0;
 
-  if(diff > daysRented) {
+  if(diff > rental.daysRented) {
     delayFee = (rental.pricePerDay)*diff
   }
 
   await db.query(`
     UPDATE rentals
-      SET returnDate=$1,
-          delayFee=$2
+      SET "returnDate"=$1,
+          "delayFee"=$2
   `, [returnDate, delayFee])
   res.sendStatus(200)
     

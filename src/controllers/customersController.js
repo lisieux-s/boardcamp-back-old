@@ -1,4 +1,5 @@
 import db from '../db.js'
+import dayjs from 'dayjs';
 
 export async function getCustomer(req, res) {
     const id = req.params.id;
@@ -57,6 +58,9 @@ export async function createCustomer(req, res) {
         if (result.rowCount > 0) {
             return res.status(409).send('Cliente já existente');
         }
+
+        if(customer.birthday.diff(dayjs().format('DD/MM/YYYY'), 'year') < 18) return res.status(400).send('Data de nascimento inválida')
+
         await db.query(`
         INSERT INTO
             customers (name, phone, cpf, birthday)
