@@ -11,6 +11,13 @@ export async function createGame(req, res) {
         if (result.rowCount > 0) {
             return res.status(409).send('Jogo já criado');
         }
+
+        const existingCategory = await db.query(`
+        SELECT * FROM categories
+            WHERE id=$1
+        `, [game.categoryId])
+        if (existingCategory.rowCount === 0) return res.sendStatus(400)
+
         await db.query(`
         INSERT INTO
             games (name, image, "stockTotal", "categoryId", "pricePerDay")

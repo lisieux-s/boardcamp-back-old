@@ -16,7 +16,35 @@ export async function getCustomer(req, res) {
     }
 }
 
-export async function updateCustomer() {}
+export async function updateCustomer(req, res) {
+    const id = req.params.id;
+    const customer = req.body;
+
+    try {
+        const result = await db.query(`
+        SELECT customers
+        WHERE cpf=$1
+        `, [customer.cpf])
+        if (result.rowCount > 0) {
+            if (result.rows[0].id !== id) {
+                return res.status(409).send('CPF já está em uso')
+            }
+        }
+
+
+        await db.query(`
+        UPDATE customers
+            SET name=$1,
+                phone=$2,
+                cpf=$3,
+                birthday=$4
+        WHERE id=$5
+        `, [customer.name, customer.phone, customer.cpf, customer.birthday, 
+            id])
+    } catch (err) {
+        res.status(500).send(err)
+    }
+}
 
 export async function createCustomer(req, res) {
     const customer = req.body;
@@ -27,7 +55,7 @@ export async function createCustomer(req, res) {
             WHERE cpf=$1
         `, [customer.cpf]);
         if (result.rowCount > 0) {
-            return res.status(409).send('Jogo já criado');
+            return res.status(409).send('Cliente já existente');
         }
         await db.query(`
         INSERT INTO
