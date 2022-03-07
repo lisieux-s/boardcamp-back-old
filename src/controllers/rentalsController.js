@@ -57,7 +57,8 @@ export async function getRentals(req, res) {
 }
 
 export async function updateRental(req, res) {
-  const id = req.params.id;
+  const id = req.query.id;
+  console.log(id)
 
   try {
     const result = await db.query(`
